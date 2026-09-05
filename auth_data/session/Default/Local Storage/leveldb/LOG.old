@@ -1,0 +1,8 @@
+2025/06/16-19:08:45.589 4cd8 Creating DB C:\codingan ku\projext\tes porto\bot.watshaap - Salin\auth_data\session\Default\Local Storage\leveldb since it was missing.
+2025/06/16-19:08:45.606 4cd8 Reusing MANIFEST C:\codingan ku\projext\tes porto\bot.watshaap - Salin\auth_data\session\Default\Local Storage\leveldb/MANIFEST-000001
+2025/06/16-19:08:45.621 4cd8 Recovering log #14
+2025/06/16-19:08:45.622 4cd8 Reusing old log C:\codingan ku\projext\tes porto\bot.watshaap - Salin\auth_data\session\Default\Local Storage\leveldb/000014.log 
+2025/06/16-19:08:45.622 4cd8 Delete type=2 #6
+2025/06/16-19:08:45.622 4cd8 Delete type=2 #9
+2025/06/16-19:08:45.622 4cd8 Delete type=2 #12
+2025/06/16-19:08:45.622 4cd8 Delete type=2 #15

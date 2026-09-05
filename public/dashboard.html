@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - WhatsApp Bot</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 48px 0 0;
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+      background-color: #128C7E;
+    }
+    .sidebar-sticky {
+      position: relative;
+      top: 0;
+      height: calc(100vh - 48px);
+      padding-top: .5rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .sidebar .nav-link {
+      font-weight: 500;
+      color: rgba(255, 255, 255, .75);
+      padding: 0.5rem 1rem;
+      margin: 0.2rem 0.5rem;
+      border-radius: 5px;
+    }
+    .sidebar .nav-link:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, .1);
+    }
+    .sidebar .nav-link.active {
+      color: #fff;
+      background-color: rgba(255, 255, 255, .2);
+    }
+    .sidebar .nav-link .bi {
+      margin-right: 10px;
+    }
+    .navbar-brand {
+      padding-top: .75rem;
+      padding-bottom: .75rem;
+      font-size: 1rem;
+      background-color: #0C6B61;
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+    }
+    .navbar .navbar-toggler {
+      top: .25rem;
+      right: 1rem;
+    }
+    .navbar-dark {
+      background-color: #128C7E;
+    }
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border: none;
+    }
+    .card-header {
+      background-color: #fff;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+      border-radius: 10px 10px 0 0 !important;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 15px;
+    }
+    .stat-card .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #128C7E;
+    }
+    .stat-card .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .stat-card .stat-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    .content-section {
+      display: none;
+    }
+    .content-section.active {
+      display: block;
+    }
+    .table-container {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .table {
+      margin-bottom: 0;
+    }
+    .btn-primary {
+      background-color: #128C7E;
+      border-color: #128C7E;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: #0C6B61;
+      border-color: #0C6B61;
+    }
+    .form-control:focus {
+      border-color: #128C7E;
+      box-shadow: 0 0 0 0.25rem rgba(18, 140, 126, 0.25);
+    }
+    .modal-header {
+      background-color: #128C7E;
+      color: white;
+    }
+    .modal-header .btn-close {
+      color: white;
+    }
+    /* WhatsApp Manager Styles */
+    .qr-container {
+      margin: 20px auto;
+      padding: 20px;
+      text-align: center;
+      max-width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .qr-container img {
+      max-width: 100%;
+      height: auto;
+    }
+    .status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    .status.online {
+      background: #d4edda;
+      color: #155724;
+      border-left: 5px solid #28a745;
+    }
+    .status.offline {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 5px solid #dc3545;
+    }
+    .status.connecting {
+      background: #fff3cd;
+      color: #856404;
+      border-left: 5px solid #ffc107;
+    }
+    .action-btn {
+      margin: 10px;
+      transition: all 0.3s ease;
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .refresh-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+    .refresh-btn:hover {
+      transform: rotate(30deg);
+    }
+    #whatsappTabs .nav-link {
+      color: #128C7E;
+      font-weight: 500;
+    }
+    #whatsappTabs .nav-link.active {
+      color: #0C6B61;
+      font-weight: 600;
+      border-bottom: 3px solid #0C6B61;
+    }
+    #whatsappTabs .nav-link i {
+      margin-right: 5px;
+    }
+    #whatsapp-settings-form .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    #whatsapp-settings-form .form-check-input:checked {
+      background-color: #128C7E;
+      border-color: #128C7E;
+    }
+    .alert-whatsapp {
+      background-color: #dcf8c6;
+      border-color: #128C7E;
+      color: #0C6B61;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
+      <i class="bi bi-whatsapp me-2"></i>WhatsApp Bot
+    </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="w-100"></div>
+    <div class="navbar-nav">
+      <div class="nav-item text-nowrap">
+        <a class="nav-link px-3" href="#" id="logoutBtn">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+        <div class="sidebar-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" data-section="dashboard-section">
+                <i class="bi bi-speedometer2"></i>
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-section="members-section">
+                <i class="bi bi-people"></i>
+                Member
+                <span id="pending-notification" class="badge bg-danger rounded-pill ms-2 d-none">0</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-section="templates-section">
+                <i class="bi bi-chat-square-text"></i>
+                Template Pesan
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-section="settings-section">
+                <i class="bi bi-gear"></i>
+                Pengaturan
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section active">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Dashboard</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshStats">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3">
+              <div class="card stat-card">
+                <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
+                <div class="stat-value" id="totalMessages">0</div>
+                <div class="stat-label">Total Pesan</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card">
+                <div class="stat-icon"><i class="bi bi-terminal"></i></div>
+                <div class="stat-value" id="totalCommands">0</div>
+                <div class="stat-label">Total Perintah</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Pengguna Aktif</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card">
+                <div class="stat-icon"><i class="bi bi-robot"></i></div>
+                <div class="stat-value" id="aiProvider">-</div>
+                <div class="stat-label">AI Provider</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-info-circle me-2"></i>Informasi Sistem
+                </div>
+                <div class="card-body">
+                  <table class="table table-borderless">
+                    <tbody>
+                      <tr>
+                        <td><i class="bi bi-clock me-2"></i>Uptime</td>
+                        <td id="uptime">-</td>
+                      </tr>
+                      <tr>
+                        <td><i class="bi bi-memory me-2"></i>Penggunaan Memori</td>
+                        <td id="memoryUsage">-</td>
+                      </tr>
+                      <tr>
+                        <td><i class="bi bi-terminal me-2"></i>Jumlah Perintah</td>
+                        <td id="commandCount">-</td>
+                      </tr>
+                      <tr>
+                        <td><i class="bi bi-toggle-on me-2"></i>Mode Pemeliharaan</td>
+                        <td id="maintenanceMode">-</td>
+                      </tr>
+                      <tr>
+                        <td><i class="bi bi-whatsapp me-2"></i>Status WhatsApp</td>
+                        <td id="whatsapp-status">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-link-45deg me-2"></i>Tautan Cepat
+                </div>
+                <div class="card-body">
+                  <div class="list-group">
+                    <a href="/api/stats" target="_blank" class="list-group-item list-group-item-action">
+                      <i class="bi bi-graph-up me-2"></i>API Statistik
+                    </a>
+                    <a href="/api/commands" target="_blank" class="list-group-item list-group-item-action">
+                      <i class="bi bi-terminal me-2"></i>API Daftar Perintah
+                    </a>
+                    <a href="/api/users" target="_blank" class="list-group-item list-group-item-action">
+                      <i class="bi bi-people me-2"></i>API Daftar Pengguna
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates Section -->
+        <div id="templates-section" class="content-section">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Template Pesan</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addTemplateModal">
+                <i class="bi bi-plus-lg"></i> Tambah Template
+              </button>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <select class="form-select" id="templateCategoryFilter">
+                <option value="">Semua Kategori</option>
+                <option value="greeting">Salam</option>
+                <option value="introduction">Perkenalan</option>
+                <option value="pickup_line">Gombalan</option>
+                <option value="joke">Lelucon</option>
+                <option value="other">Lainnya</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="templateSearch" placeholder="Cari template...">
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Kategori</th>
+                  <th>Judul</th>
+                  <th>Konten</th>
+                  <th>Dibuat Oleh</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="templatesTableBody">
+                <!-- Template data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Members Section -->
+        <div id="members-section" class="content-section">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Manajemen Member</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshMembers">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+              <div class="dropdown ms-2">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-filter"></i> Filter
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                  <li><a class="dropdown-item filter-status" data-status="all" href="#">Semua</a></li>
+                  <li><a class="dropdown-item filter-status" data-status="pending" href="#">Menunggu Persetujuan</a></li>
+                  <li><a class="dropdown-item filter-status" data-status="approved" href="#">Disetujui</a></li>
+                  <li><a class="dropdown-item filter-status" data-status="rejected" href="#">Ditolak</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification badge for pending members -->
+          <div id="pending-notification" class="alert alert-warning d-none" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span id="pending-count">0</span> pendaftaran member menunggu persetujuan
+          </div>
+
+          <!-- Members table -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="bi bi-table me-1"></i>
+              Daftar Member
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover" id="members-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nama</th>
+                      <th>No. HP</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Membership</th>
+                      <th>Credits</th>
+                      <th>Tanggal Daftar</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="members-list">
+                    <!-- Member data will be loaded here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="content-section">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Pengaturan</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <button type="button" class="btn btn-sm btn-primary" id="saveSettings">
+                <i class="bi bi-save"></i> Simpan Pengaturan
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs for Settings -->
+          <ul class="nav nav-tabs mb-3" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
+                <i class="bi bi-gear"></i> Umum
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="whatsapp-tab" data-bs-toggle="tab" data-bs-target="#whatsapp" type="button" role="tab" aria-controls="whatsapp" aria-selected="false">
+                <i class="bi bi-whatsapp"></i> WhatsApp Manager
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="settingsTabsContent">
+            <!-- General Settings Tab -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-gear-fill me-2"></i>Pengaturan Bot
+                </div>
+                <div class="card-body">
+                  <form id="settingsForm">
+                    <div class="mb-3 form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="maintenanceModeToggle">
+                      <label class="form-check-label" for="maintenanceModeToggle">Mode Pemeliharaan</label>
+                      <small class="form-text text-muted">Saat diaktifkan, bot hanya akan merespon admin.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="aiProviderSelect" class="form-label">Provider AI</label>
+                      <select class="form-select" id="aiProviderSelect">
+                        <option value="gemini">Google Gemini</option>
+                        <option value="openai">OpenAI</option>
+                        <option value="none">Tidak Ada</option>
+                      </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="commandPrefixInput" class="form-label">Prefix Perintah</label>
+                      <input type="text" class="form-control" id="commandPrefixInput" placeholder="!">
+                      <small class="form-text text-muted">Karakter yang digunakan untuk menandai perintah (contoh: !help)</small>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- WhatsApp Manager Tab -->
+            <div class="tab-pane fade" id="whatsapp" role="tabpanel" aria-labelledby="whatsapp-tab">
+              <!-- Status WhatsApp -->
+              <div id="whatsapp-status" class="status offline mb-3">
+                Status WhatsApp: <span id="status-text">Mengecek...</span>
+              </div>
+
+              <!-- WhatsApp Manager Tabs -->
+              <ul class="nav nav-tabs" id="whatsappTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">
+                    <i class="bi bi-qr-code"></i> Login QR
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="wa-settings-tab" data-bs-toggle="tab" data-bs-target="#wa-settings" type="button" role="tab" aria-controls="wa-settings" aria-selected="false">
+                    <i class="bi bi-gear"></i> Pengaturan WhatsApp
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="actions-tab" data-bs-toggle="tab" data-bs-target="#actions" type="button" role="tab" aria-controls="actions" aria-selected="false">
+                    <i class="bi bi-tools"></i> Tindakan
+                  </button>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="whatsappTabsContent">
+                <!-- Login QR Tab -->
+                <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                  <div class="card">
+                    <div class="card-header position-relative">
+                      <h5><i class="bi bi-qr-code"></i> Scan QR Code untuk Login WhatsApp</h5>
+                      <button id="refresh-qr-btn" class="btn btn-sm btn-primary refresh-btn">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh QR
+                      </button>
+                    </div>
+                    <div class="card-body">
+                      <div class="qr-container" id="qrcode">
+                        <div class="text-center">
+                          <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                          <p class="mt-2">Memuat QR Code...</p>
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <p>Scan QR code ini dengan aplikasi WhatsApp di ponsel Anda untuk login</p>
+                        <p><small>QR code akan diperbarui secara otomatis setiap 20 detik</small></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div class="tab-pane fade" id="wa-settings" role="tabpanel" aria-labelledby="wa-settings-tab">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="bi bi-gear"></i> Pengaturan WhatsApp</h5>
+                    </div>
+                    <div class="card-body">
+                      <form id="whatsapp-settings-form">
+                        <div class="mb-3 form-check">
+                          <input type="checkbox" class="form-check-input" id="headless" name="whatsappHeadless">
+                          <label class="form-check-label" for="headless">Mode Headless (Tanpa Browser)</label>
+                          <div class="form-text">Jika dimatikan, browser akan muncul saat login WhatsApp</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="qr-timeout" class="form-label">Timeout QR Code (ms)</label>
+                          <input type="number" class="form-control" id="qr-timeout" name="whatsappQrTimeout">
+                          <div class="form-text">Waktu maksimal menunggu QR code di-scan (dalam milidetik)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="reconnect-attempts" class="form-label">Percobaan Reconnect</label>
+                          <input type="number" class="form-control" id="reconnect-attempts" name="whatsappReconnectAttempts">
+                          <div class="form-text">Jumlah percobaan reconnect jika koneksi terputus</div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="save-settings-btn">Simpan Pengaturan</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions Tab -->
+                <div class="tab-pane fade" id="actions" role="tabpanel" aria-labelledby="actions-tab">
+                  <div class="card">
+                    <div class="card-header">
+                      <h5><i class="bi bi-tools"></i> Tindakan WhatsApp</h5>
+                    </div>
+                    <div class="card-body">
+                      <p>Gunakan tombol di bawah ini untuk mengelola sesi WhatsApp Anda</p>
+                      
+                      <div class="d-grid gap-2">
+                        <button class="btn btn-warning" id="logout-btn">
+                          <i class="bi bi-box-arrow-left"></i> Logout WhatsApp
+                        </button>
+                        <button class="btn btn-info" id="restart-btn">
+                          <i class="bi bi-arrow-repeat"></i> Restart Client
+                        </button>
+                        <button class="btn btn-danger" id="reset-btn">
+                          <i class="bi bi-trash"></i> Reset Sesi
+                        </button>
+                      </div>
+                      
+                      <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Perhatian:</strong> Reset sesi akan menghapus semua data sesi WhatsApp dan Anda perlu scan QR code lagi.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Template Modal -->
+  <div class="modal fade" id="addTemplateModal" tabindex="-1" aria-labelledby="addTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addTemplateModalLabel">Tambah Template Baru</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addTemplateForm">
+            <div class="mb-3">
+              <label for="templateCategory" class="form-label">Kategori</label>
+              <select class="form-select" id="templateCategory" required>
+                <option value="">Pilih Kategori</option>
+                <option value="greeting">Salam</option>
+                <option value="introduction">Perkenalan</option>
+                <option value="pickup_line">Gombalan</option>
+                <option value="joke">Lelucon</option>
+                <option value="other">Lainnya</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="templateTitle" class="form-label">Judul</label>
+              <input type="text" class="form-control" id="templateTitle" required>
+            </div>
+            <div class="mb-3">
+              <label for="templateContent" class="form-label">Konten</label>
+              <textarea class="form-control" id="templateContent" rows="5" required></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" id="saveTemplateBtn">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Template Modal -->
+  <div class="modal fade" id="editTemplateModal" tabindex="-1" aria-labelledby="editTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTemplateModalLabel">Edit Template</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editTemplateForm">
+            <input type="hidden" id="editTemplateId">
+            <div class="mb-3">
+              <label for="editTemplateCategory" class="form-label">Kategori</label>
+              <select class="form-select" id="editTemplateCategory" required>
+                <option value="">Pilih Kategori</option>
+                <option value="greeting">Salam</option>
+                <option value="introduction">Perkenalan</option>
+                <option value="pickup_line">Gombalan</option>
+                <option value="joke">Lelucon</option>
+                <option value="other">Lainnya</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="editTemplateTitle" class="form-label">Judul</label>
+              <input type="text" class="form-control" id="editTemplateTitle" required>
+            </div>
+            <div class="mb-3">
+              <label for="editTemplateContent" class="form-label">Konten</label>
+              <textarea class="form-control" id="editTemplateContent" rows="5" required></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" id="updateTemplateBtn">Perbarui</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Detail Modal -->
+  <div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="memberModalLabel">Detail Member</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="member-form">
+            <input type="hidden" id="member-id">
+            <div class="mb-3">
+              <label for="member-name" class="form-label">Nama</label>
+              <input type="text" class="form-control" id="member-name" required>
+            </div>
+            <div class="mb-3">
+              <label for="member-phone" class="form-label">No. HP</label>
+              <input type="text" class="form-control" id="member-phone" required>
+            </div>
+            <div class="mb-3">
+              <label for="member-email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="member-email">
+            </div>
+            <div class="mb-3">
+              <label for="member-membership" class="form-label">Tipe Membership</label>
+              <select class="form-control" id="member-membership">
+                <option value="free">Free</option>
+                <option value="basic">Basic</option>
+                <option value="premium">Premium</option>
+                <option value="platinum">Platinum</option>
+                <option value="unlimited">Unlimited</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="member-expires" class="form-label">Tanggal Kadaluarsa</label>
+              <input type="date" class="form-control" id="member-expires">
+            </div>
+            <div class="mb-3">
+              <label for="member-credits" class="form-label">Credits</label>
+              <input type="number" class="form-control" id="member-credits" min="0">
+            </div>
+            <div class="mb-3">
+              <label for="member-notes" class="form-label">Catatan</label>
+              <textarea class="form-control" id="member-notes" rows="3"></textarea>
+            </div>
+            <div class="mb-3" id="status-info">
+              <label class="form-label">Status</label>
+              <div class="status-badge"></div>
+            </div>
+            <div class="mb-3" id="approval-info">
+              <label class="form-label">Informasi Persetujuan</label>
+              <div id="approval-details"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          <button type="button" class="btn btn-success" id="approve-btn">Setujui</button>
+          <button type="button" class="btn btn-danger" id="reject-btn">Tolak</button>
+          <button type="button" class="btn btn-primary" id="save-btn">Simpan Perubahan</button>
+          <button type="button" class="btn btn-danger" id="delete-btn">Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationTitle">Konfirmasi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmationMessage">
+          Apakah Anda yakin ingin melakukan tindakan ini?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary" id="confirmBtn">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JavaScript Files -->
+  <script src="whatsapp-api.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/members.js"></script>
+</body>
+</html>
